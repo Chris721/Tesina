@@ -26,7 +26,7 @@ const BeaconScanner = require("node-beacon-scanner");
 var scanner = new BeaconScanner();
 var beacon;
 
-/* db.serialize(() => { 
+/*db.serialize(() => { 
 db.each(`SELECT brand, model, year, firstName, inside, id_type_fk2, id_person_fk FROM car
 INNER JOIN person ON person.id = car.id_person_fk`, (err, row) => {
     if (err) {
@@ -39,7 +39,7 @@ INNER JOIN person ON person.id = car.id_person_fk`, (err, row) => {
 + " " + row.id_person_fk + " " + row.inside);
 	}
   }); 
-});
+});*/
 
 function update(up, data) {
 db.serialize(() => {
@@ -50,27 +50,21 @@ db.run(up, data, function(err) {
         console.log(`Row(s) updated: ${this.changes}`);
     });
 });
-};*/
-
-//console.log(sql);*/
-
-/*db.all(sql, [], (err, rows) => {
-  if (err) {
-    throw err;
-  }
-  rows.forEach((row) => {
-    console.log(row.firstName);
-  });
-});*/
+};
   
 scanner.onadvertisement = (advertisement) => {
    beacon = advertisement.id;
   //beacon.rssi = advertisement["rssi"];
     console.log(JSON.stringify(beacon, null, "    "));
-    console.log('It has stopped');
     console.log('Sending  beacon id');
     console.log(beacon);
 };
+
+scanner.startScan().then(() => {
+    console.log("Scanning for BLE devices...");
+}).catch((error) => {
+    console.error(error);
+});
 
 db.each(query, [beacon], (err, row) => {
   if (err) {
@@ -80,14 +74,6 @@ db.each(query, [beacon], (err, row) => {
     ? console.log(row.firstName)
     : console.log(`No beacon found with the id ${beacon}`);
         });
-
-console.log('hellow');
-
-scanner.startScan().then(() => {
-    console.log("Scanning for BLE devices...");
-}).catch((error) => {
-    console.error(error);
-});
 
 db.serialize(() => {
 db.close((err) => {
